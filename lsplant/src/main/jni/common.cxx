@@ -69,7 +69,7 @@ export {
         return v + size - 1 - ((v + size - 1) & (size - 1));
     }
 
-    inline auto GetAndroidApiLevel() {
+    [[gnu::const]] inline auto GetAndroidApiLevel() {
         static auto kApiLevel = []() {
             std::array<char, PROP_VALUE_MAX> prop_value;
             __system_property_get("ro.build.version.sdk", prop_value.data());
@@ -133,7 +133,7 @@ export {
     inline art::ArtMethod *IsHooked(art::ArtMethod * art_method, bool including_backup = false) {
         art::ArtMethod *backup = nullptr;
         hooked_methods_.if_contains(art_method, [&backup, &including_backup](const auto &it) {
-            if (!including_backup || it.second.first) backup = it.second.second;
+            if (including_backup || it.second.first) backup = it.second.second;
         });
         return backup;
     }
@@ -143,7 +143,7 @@ export {
         hooked_methods_.if_contains(art_method, [&backup](const auto &it) {
             if (!it.second.first) backup = it.second.second;
         });
-        return nullptr;
+        return backup;
     }
 
     inline bool IsDeoptimized(art::ArtMethod * art_method) {
